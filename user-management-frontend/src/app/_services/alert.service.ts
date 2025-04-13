@@ -31,9 +31,10 @@ export class AlertService {
         this.alert(new Alert({ ...options, type: AlertType.Warning, message }));
     }
 
-    // main alert method    
+    // core alert method
     alert(alert: Alert) {
         alert.id = alert.id || this.defaultId;
+        alert.autoClose = (alert.autoClose === undefined ? true : alert.autoClose);
         this.subject.next(alert);
     }
 

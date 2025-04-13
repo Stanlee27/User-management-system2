@@ -13,7 +13,6 @@ const baseUrl = `${environment.apiUrl}/accounts`;
 export class AccountService {
     private accountSubject: BehaviorSubject<Account>;
     public account: Observable<Account>;
-    private refreshTokenTimeout;
 
     constructor(
         private router: Router,
@@ -45,7 +44,7 @@ export class AccountService {
 
     refreshToken() {
         return this.http.post<any>(`${baseUrl}/refresh-token`, {}, { withCredentials: true })
-            .pipe(map((account) => {
+            .pipe(map(account => {
                 this.accountSubject.next(account);
                 this.startRefreshTokenTimer();
                 return account;
@@ -80,14 +79,14 @@ export class AccountService {
         return this.http.get<Account>(`${baseUrl}/${id}`);
     }
 
-    create(params) {
+    create(params: any) {
         return this.http.post(baseUrl, params);
     }
 
     update(id, params) {
         return this.http.put(`${baseUrl}/${id}`, params)
             .pipe(map((account: any) => {
-                // update current account if it was updated
+                // update the current account if it was updated
                 if (account.id === this.accountValue.id) {
                     // publish updated account to subscribers
                     account = { ...this.accountValue, ...account };
@@ -95,18 +94,21 @@ export class AccountService {
                 }
                 return account;
             }));
-    }
+    }    
 
     delete(id: string) {
         return this.http.delete(`${baseUrl}/${id}`)
             .pipe(finalize(() => {
                 // auto logout if the logged in account was deleted
-                if (id === this.accountValue.id)
+                if (id === this.accountValue.id) 
                     this.logout();
             }));
     }
 
     // helper methods
+
+    private refreshTokenTimeout;
+
     private startRefreshTokenTimer() {
         // parse json object from base64 encoded jwt token
         const jwtToken = JSON.parse(atob(this.accountValue.jwtToken.split('.')[1]));
